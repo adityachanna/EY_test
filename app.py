@@ -25,12 +25,19 @@ import os
 import sys
 import uuid
 
+# Import internal knowledge tool from input.py
+from input import internal_knowledge_tool
+
 # Load environment variables
 load_dotenv()
 
 # Define Input Schemas for cleaner tool usage
 class SearchInput(BaseModel):
     query: str = Field(description="The search query to find relevant information.")
+
+class EmptyInput(BaseModel):
+    """Empty input schema for tools that don't require parameters."""
+    pass
 
 # Define Tools with @tool decorator
 @tool("web_search", args_schema=SearchInput)
@@ -90,6 +97,98 @@ def pubmed_search_tool(query: str) -> str:
     except Exception as e:
         return f"Error performing PubMed search: {str(e)}"
 
+@tool("get_company_profile", args_schema=EmptyInput)
+def company_profile_tool() -> str:
+    """
+    Retrieve the company profile and internal context for AstraGen Pharmaceuticals.
+    
+    This tool provides comprehensive information about:
+    - Company overview, headquarters, and revenue
+    - Manufacturing facilities and capabilities
+    - Key portfolio assets (TelmiGuard, MinoClear)
+    - Current strategic challenges (Minocycline surplus crisis)
+    - Supply chain and inventory data
+    
+    Use this tool when you need context about the company's situation, products, or strategic challenges.
+    """
+    return """Company Profile: AstraGen Pharmaceuticals
+
+Overview: AstraGen Pharmaceuticals is a multinational generic pharmaceutical company headquartered in Bridgewater, New Jersey, with $4.2 Billion in annual revenue. The company focuses on democratizing access to high-quality medication while pivoting toward Value-Added Generics (VAG) and 505(b)(2) innovation pathways. AstraGen operates major manufacturing hubs in Baddi (India), Hyderabad (India), and Cork (Ireland).
+
+Key Portfolio Assets:
+
+    TelmiGuard (Telmisartan): The company's cardiovascular "Cash Cow." Manufactured at the Hyderabad facility (Unit IV), it remains stable with +2.1% YoY revenue growth. Supply chain is optimized with Just-in-Time (JIT) inventory, and a new Fixed-Dose Combination (Telmisartan + Amlodipine) is launching in Q1 2026.
+
+    MinoClear (Minocycline): A legacy broad-spectrum tetracycline antibiotic used for acne. Manufactured at the Baddi facility (Unit III). This product is currently in distress, with revenue declining -4.5% YoY due to market saturation and competition from isotretinoin.
+
+The Current Crisis (The "Minocycline Problem"): A critical supply chain bottleneck has emerged at the Baddi Unit III facility. AstraGen holds a critical surplus of 4,500 kg of Minocycline API (approx. 18 months of inventory). Due to declining prescriptions in dermatology, this inventory risks expiration by Q4 2026, leading to a potential $2.5 Million write-off. The Commercial team has confirmed that the acne market cannot absorb this volume.
+"""
+
+@tool("get_market_data", args_schema=EmptyInput)
+def market_data_tool() -> str:
+    """
+    Retrieve comprehensive market data including IQVIA forecasts, EXIM data, patent landscape, and clinical trials.
+    
+    This tool provides:
+    - IQVIA sales forecasts by region (2023-2026)
+    - EXIM inventory and supply chain risk data
+    - Patent landscape for Minocycline reformulations
+    - Clinical trials data for repurposing opportunities
+    - Real-world market signals and trends
+    
+    Use this tool when you need market intelligence, competitive analysis, or data-driven insights 
+    about Minocycline or pharmaceutical market trends.
+    """
+    return '''IQVIA Data – Minocycline (MinoClear) Market & Forecast
+Region	2023 Sales (USD M)	2024	2025E	2026P	CAGR '23–'26
+Global Total	210	200	190	180	–5.3%
+North America	95	88	80	72	–9.4%
+Europe	45	43	41	39	–4.8%
+Asia-Pacific	40	38	36	34	–5.3%
+Emerging Markets (LatAm + MEA)	30	31	33	35	+7.0%
+
+Key Insights:
+- Global Minocycline market contracting at ~5% CAGR due to declining acne prescriptions + antibiotic stewardship measures.
+- North America shows steepest decline (–9.4%), consistent with reduced oral antibiotic use in acne (supported by real-world literature trends).
+- Emerging markets remain a growth pocket (+7%), driven by cost sensitivity and slower adoption of alternative therapies.
+- By 2026, total market falls to ~$180M (from $210M), limiting ability to absorb AstraGen's surplus API.
+
+EXIM Data – AstraGen API Inventory & Supply Risk (Minocycline)
+Parameter	Value
+Current API Stock (Baddi Unit III)	4,500 kg (≈18 months inventory)
+Avg. Monthly API Consumption	~250 kg/month
+Projected Demand Decline (2025–27)	–30% vs 2024 baseline
+API Manufacture Date	Q2 2024
+API Shelf-Life	Expires Q4 2026 (high expiry risk)
+External Buyers / Export Enquiries	Very limited; no active export contracts in last 8 months
+Supply Chain Risk Score	High (overstock + low off-take velocity)
+
+Strategic Note: Without a new indication, formulation, or export opportunity, AstraGen faces a likely $2.5M write-off due to expiry of API.
+
+Patent Landscape – Minocycline Reformulation & Use Patents
+Patent ID	Status	Key Claim	Term / Expiry	Relevance
+US-MN-ER-2023-001	Pending (filed 2023)	Extended-release oral Minocycline (once-daily 75 mg)	If granted: 2043	Strong 505(b)(2) lifecycle extension potential
+WO-MN-TOP-2024-0456	Published (2024)	Topical Minocycline 4% foam/gel for acne/rosacea	Expected to 2044	Route-of-delivery innovation; differentiates from oral market decline
+US-MN-IND-2005-0789	Expired	Composition of matter (tetracycline class)	Expired 2015	Confirms core API is generic; low IP barrier
+US-MN-DERM-2011-0222	Granted (2011 → 2028)	Use patent: oral Minocycline for acne, 50 mg BID	Expires 2028	Minor constraint depending on dosage form
+
+Strategic Note: Pending extended-release and topical patents provide viable 505(b)(2) repositioning paths, enabling differentiation despite shrinking dermatology markets.
+
+Clinical Trials Landscape – Minocycline Repurposing
+Trial ID	Indication	Phase	Status	Endpoint	Est. Completion
+NCT-MN-NEURO-2024	Early Parkinson's (neuroprotection)	Phase II	Recruiting	UPDRS progression slowdown at 12 months	Q4 2026
+NCT-MN-ROSAC-2025	Rosacea (topical minocycline 4% foam)	Phase III	Planned (Q2 2025)	≥50% lesion reduction	Q1 2027
+NCT-MN-DERM-XR-2023	Acne – extended-release oral	Phase II	Completed (2024)	% patients achieving ≥60% lesion reduction vs doxycycline	Data readout Q4 2025
+NCT-MN-URTI-2023	Skin/soft tissue infections	Phase II	Completed (2024)	Day-14 clinical cure	Published
+
+Strategic Note: Neurodegeneration presents biggest long-term repurposing upside (high unmet need, minimal competition). Topical and ER dermatology formulations align with regulatory and market behaviors shifting away from chronic oral antibiotics.
+
+Real-World Signals:
+- Oral antibiotic use for acne has declined significantly in the US: ~22.9% → ~17.4% of acne visits (real-world studies).
+- Systemic antibiotic prescriptions for acne dropped from 2017–2020 as dermatologists moved to hormonal & non-antibiotic therapies.
+- These support the contraction scenario and justify AstraGen's Minocycline surplus risk.
+'''
+
 
 class PharmaAnalystAgent:
     """
@@ -115,8 +214,14 @@ class PharmaAnalystAgent:
         self.company_profile = custom_company_profile or self._get_default_company_profile()
         self.market_data = self._get_market_data()
         
-        # Initialize tools
-        self.tools = [web_search_tool, pubmed_search_tool]
+        # Initialize tools (including internal knowledge agent tool and data retrieval tools)
+        self.tools = [
+            web_search_tool, 
+            pubmed_search_tool, 
+            internal_knowledge_tool,
+            company_profile_tool,
+            market_data_tool
+        ]
         
         self.model = self._initialize_model()
         self.agent = self._create_agent()
@@ -213,23 +318,32 @@ Real-World Signals:
     
     def _create_system_prompt(self) -> str:
         """Create the comprehensive system prompt for the agent."""
-        return f"""You are a Pharma analyst with extensive knowledge about your company's profile, internal documents, and comprehensive market data.
+        return f"""You are a **Knowledge Agent** - a Pharma analyst specializing in pharmaceutical opportunity analysis and strategic decision-making.
 
-COMPANY PROFILE AND INTERNAL CONTEXT:
-{self.company_profile}
+YOUR CAPABILITIES AS A KNOWLEDGE AGENT:
+You have access to FIVE powerful research and data retrieval tools:
 
-MARKET DATA (IQVIA, EXIM, Patents, Clinical Trials):
-{self.market_data}
+1. **get_company_profile**: Retrieve AstraGen's company profile, portfolio assets, manufacturing facilities, and current strategic challenges (like the Minocycline surplus crisis).
 
-YOUR CAPABILITIES:
-You have access to two powerful research tools:
-1. **web_search**: Use for current guidelines, news, market trends, and real-world signals.
-2. **pubmed_search**: Use for scientific evidence, clinical trials, and mechanisms of action.
+2. **get_market_data**: Retrieve comprehensive market intelligence including:
+   - IQVIA sales forecasts by region
+   - EXIM inventory and supply chain data
+   - Patent landscape and IP analysis
+   - Clinical trials landscape for repurposing opportunities
+
+3. **internal_knowledge_search**: Search the company's internal knowledge base for proprietary documents, internal reports, product specifications, and company-specific data.
+
+4. **web_search**: Search the web for current guidelines, news, market trends, regulatory updates, and real-world signals.
+
+5. **pubmed_search**: Search PubMed for peer-reviewed scientific evidence, clinical trials, mechanisms of action, and pharmacological data.
 
 WHEN TO USE EACH TOOL:
-- Use **web_search** for commercial/regulatory validation.
-- Use **pubmed_search** for scientific/clinical validation.
-- ALWAYS cite your sources.
+- Use **get_company_profile** at the START of any analysis to understand the company context, products, and challenges.
+- Use **get_market_data** when you need IQVIA forecasts, EXIM data, patents, or clinical trials information.
+- Use **internal_knowledge_search** for company-specific proprietary information and internal documents.
+- Use **web_search** for current market trends, regulatory updates, and external validation.
+- Use **pubmed_search** for scientific/clinical validation and peer-reviewed research.
+- ALWAYS cite your sources with proper attribution.
 
 *** CLARIFICATION PROTOCOL ***
 If the user's query is vague, ambiguous, or lacks specific details (e.g., "Tell me about the market" without specifying which market, or "What about the drug?" without naming it), you MUST:
@@ -237,8 +351,9 @@ If the user's query is vague, ambiguous, or lacks specific details (e.g., "Tell 
 2. Do NOT proceed with tools or deep research until you have a clear objective.
 
 *** DYNAMIC CONTEXT RULES (CRITICAL) ***
-1. **Internal Document Override**: If the user provides an text labeled 'Internal Document' in the chat, TREAT THAT as the authoritative Company Profile for this analysis. It overrides the 'COMPANY PROFILE' section above.
-2. **Web Data Priority**: If you find information via `web_search` that contradicts the Company Profile or Market Data (e.g., new regulations, competitor moves), YOU MUST:
+1. **Tool-First Approach**: ALWAYS call `get_company_profile` and `get_market_data` at the beginning of your analysis to ground your understanding in the latest company context and market intelligence.
+2. **Internal Document Override**: If the user provides text labeled 'Internal Document' in the chat, TREAT THAT as authoritative context that supplements the company profile.
+3. **Web Data Priority**: If you find information via `web_search` that contradicts the company profile or market data, YOU MUST:
    - Use the fresher `web_search` data as the truth.
    - **Call out the discrepancy** explicitly in your report (e.g., "Note: Recent web data updates the internal profile regarding...").
 
@@ -251,9 +366,9 @@ If the user asks for "deep research", "comprehensive report", "strategic analysi
 - High-level overview of the opportunity, strategic fit, and key recommendation.
 
 ## Section 2: Company Profile & Market Analysis
-- **Company Context**: Analyze AstraGen's specific situation (e.g., inventory risks, manufacturing capabilities) using the Internal Context provided (or the overridden Internal Document).
-- **Market Data**: Present the IQVIA and EXIM data in **Markdown Tables**.
-- **Citations**: You MUST cite the source of every data point in this section (e.g., *Source: IQVIA Forecast*, *Source: Internal Memo*).
+- **Company Context**: Analyze AstraGen's specific situation using data from `get_company_profile` (e.g., inventory risks, manufacturing capabilities).
+- **Market Data**: Present the IQVIA and EXIM data from `get_market_data` in **Markdown Tables**.
+- **Citations**: You MUST cite the source of every data point in this section (e.g., *Source: Company Profile Tool*, *Source: Market Data Tool*, *Source: Internal Memo*).
 
 ## Section 3: Scientific & Clinical Validation
 - Mechanism of Action (cite PubMed PMIDs).
