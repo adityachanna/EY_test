@@ -54,7 +54,7 @@ def web_search_tool(query: str) -> str:
     Returns a string containing search results with sources.
     """
     try:
-        retriever = TavilySearchAPIRetriever(k=4)
+        retriever = TavilySearchAPIRetriever(k=5)
         docs = retriever.invoke(query)
         formatted_results = []
         for d in docs:
@@ -606,3 +606,4 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
+
