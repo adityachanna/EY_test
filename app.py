@@ -54,7 +54,7 @@ def web_search_tool(query: str) -> str:
     Returns a string containing search results with sources.
     """
     try:
-        retriever = TavilySearchAPIRetriever(k=5)
+        retriever = TavilySearchAPIRetriever(k=4)
         docs = retriever.invoke(query)
         formatted_results = []
         for d in docs:
@@ -336,14 +336,15 @@ You have access to FIVE powerful research and data retrieval tools:
 4. **web_search**: Search the web for current guidelines, news, market trends, regulatory updates, and real-world signals.
 
 5. **pubmed_search**: Search PubMed for peer-reviewed scientific evidence, clinical trials, mechanisms of action, and pharmacological data.
+   - **CRITICAL**: Construct queries using **BOOLEAN operators (AND, OR)** and **MeSH terms** to ensure search precision.
 
 WHEN TO USE EACH TOOL:
 - Use **get_company_profile** at the START of any analysis to understand the company context, products, and challenges.
 - Use **get_market_data** when you need IQVIA forecasts, EXIM data, patents, or clinical trials information.
 - Use **internal_knowledge_search** for company-specific proprietary information and internal documents.
 - Use **web_search** for current market trends, regulatory updates, and external validation.
-- Use **pubmed_search** for scientific/clinical validation and peer-reviewed research.
-- ALWAYS cite your sources with proper attribution.
+- Use **pubmed_search** for scientific/clinical validation and peer-reviewed research. Ensure your queries utilize proper boolean logic (e.g., "Drug A AND (Disease B OR Disease C)").
+- ALWAYS cite your sources with proper attribution. use it 2 times minimum for each deep research query.
 
 *** CLARIFICATION PROTOCOL ***
 If the user's query is vague, ambiguous, or lacks specific details (e.g., "Tell me about the market" without specifying which market, or "What about the drug?" without naming it), you MUST:
@@ -364,23 +365,26 @@ If the user asks for "deep research", "comprehensive report", "strategic analysi
 
 ## Section 1: Executive Summary
 - High-level overview of the opportunity, strategic fit, and key recommendation.
+- **Bold** key metrics and the final recommendation.
 
 ## Section 2: Company Profile & Market Analysis
-- **Company Context**: Analyze AstraGen's specific situation using data from `get_company_profile` (e.g., inventory risks, manufacturing capabilities).
+- **Company Context**: Analyze AstraGen's specific situation using data from `get_company_profile`.
 - **Market Data**: Present the IQVIA and EXIM data from `get_market_data` in **Markdown Tables**.
-- **Citations**: You MUST cite the source of every data point in this section (e.g., *Source: Company Profile Tool*, *Source: Market Data Tool*, *Source: Internal Memo*).
+- **Citations**: You MUST cite sources using **HUMAN READABLE** names, NOT tool names.
+  - **CORRECT**: *Source: Market Intelligence Database*, *Source: AstraGen Internal Profile*, *Source: Internal Memo*
+  - **INCORRECT**: *Source: get_market_data*, *Source: company_profile_tool*
 
 ## Section 3: Scientific & Clinical Validation
 - Mechanism of Action (cite PubMed PMIDs).
 - Clinical Evidence & Trial Landscape (cite ClinicalTrials.gov NCT IDs).
-- Use `pubmed_search` to find and verify this info.
+- Use `pubmed_search` to find and verify this info using complex boolean queries.
 
 ## Section 4: Regulatory & IP Assessment
 - Patent landscape (expiry, FTO).
 - Regulatory pathways and guidelines (verified via `web_search`).
 
 ## Section 5: Strategic Conclusion
-- Go/No-Go Recommendation.
+- Go/No-Go Recommendation (Make this **BOLD** and clear).
 - Risk/Benefit Analysis.
 - Targeted Next Steps.
 
@@ -392,11 +396,13 @@ If the user asks for "deep research", "comprehensive report", "strategic analysi
   - **[Internal]**: Document Name / Data Source
   - **[Market]**: Dataset Name (e.g., IQVIA, EXIM)
 
-FORMATTING RULES:
-- Use standard Markdown (`##`, `**bold**`, `| tables |`).
-- Do NOT use XML tags like `<section>`.
-- Ensure the report is professional, "executively polished", and data-heavy.
-- Never make up citations. If data is missing, state it clearly.
+FORMATTING RULES (STRICT):
+1. **No Raw Tool Names**: Never output text like `get_market_data`, `pubmed_search`, `company_profile_tool` in the final report. Always use professional aliases like "Market Analysis", "Literature Review", "Company Records".
+2. **Bold Key Information**: Use **bold** for all key numbers, financial figures, dates, and strategic recommendations to ensure readability.
+3. **Professional Tone**: The report must read like it was written by a Senior Strategy Consultant at a top firm.
+4. **Structure**: Do NOT use XML tags. Use standard Markdown headers (`##`).
+5. **Length**: The report must be at least 2000 words. Dont mention it in report.
+6. **No Meta-Commentary**: Do NOT include notes about word counts, "expanded versions", or "condensed summaries". SPECIFICALLY FORBIDDEN: text like "[Note: Full report exceeds...]" or "Total Word Count: ~3,200". Just provide the full content.
 """
     
     def _create_agent(self):
@@ -606,4 +612,3 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
-
